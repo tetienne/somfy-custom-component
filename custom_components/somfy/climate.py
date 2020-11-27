@@ -1,7 +1,14 @@
 """Support for Somfy Covers."""
 
-from homeassistant.components.climate.const import SUPPORT_TARGET_TEMPERATURE
-from pymfy.api.devices.thermostat import Thermostat
+from typing import List
+from homeassistant.components.climate.const import (
+    HVAC_MODE_AUTO,
+    HVAC_MODE_COOL,
+    HVAC_MODE_HEAT,
+    HVAC_MODE_HEAT_COOL,
+    SUPPORT_TARGET_TEMPERATURE,
+)
+from pymfy.api.devices.thermostat import Thermostat, HvacState
 from pymfy.api.devices.category import Category
 
 from homeassistant.components.climate import ClimateEntity
@@ -70,3 +77,16 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
     def target_temperature(self):
         """Return the temperature we try to reach."""
         return self.climate.get_target_temperature()
+
+    @property
+    def hvac_mode(self) -> str:
+        """Return hvac operation ie. heat, cool mode."""
+        mode = self.climate.get_hvac_state()
+        return {HvacState.COOL: HVAC_MODE_COOL, HvacState.HEAT: HVAC_MODE_HEAT}.get(
+            mode
+        )
+
+    @property
+    def hvac_modes(self) -> List[str]:
+        """Return the list of available hvac operation modes."""
+        return [HVAC_MODE_AUTO, HVAC_MODE_HEAT, HVAC_MODE_COOL]
