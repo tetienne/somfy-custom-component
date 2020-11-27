@@ -2,6 +2,8 @@
 
 from typing import List, Optional
 from homeassistant.components.climate.const import (
+    CURRENT_HVAC_HEAT,
+    CURRENT_HVAC_IDLE,
     HVAC_MODE_AUTO,
     HVAC_MODE_COOL,
     HVAC_MODE_HEAT,
@@ -102,6 +104,26 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
     def hvac_modes(self) -> List[str]:
         """Return the list of available hvac operation modes."""
         return [HVAC_MODE_HEAT, HVAC_MODE_COOL]
+
+    @property
+    def hvac_action(self) -> str:
+        """Return the current running hvac operation if supported."""
+        if not self.current_temperature or not self.target_temperature:
+            return CURRENT_HVAC_IDLE
+
+        if (
+            self.hvac_mode == HVAC_MODE_HEAT
+            and self.current_temperature < self.target_temperature
+        ):
+            return CURRENT_HVAC_HEAT
+
+        if (
+            self.hvac_mode == HVAC_MODE_COOL
+            and self.current_temperature > self.target_temperature
+        ):
+            return CURRENT_HVAC_HEAT
+
+        return CURRENT_HVAC_IDLE
 
     @property
     def preset_mode(self) -> Optional[str]:
