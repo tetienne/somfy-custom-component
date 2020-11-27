@@ -107,12 +107,12 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
     def preset_mode(self) -> Optional[str]:
         """Return the current preset mode."""
         mode = self.climate.get_target_mode()
-        return PRESETS_MAPPING.get(mode)
+        return REVERSE_PRESET_MAPPING.get(mode)
 
     @property
     def preset_modes(self) -> Optional[List[str]]:
         """Return a list of available preset modes."""
-        return list(PRESETS_MAPPING.keys())
+        return list(PRESETS_MAPPING.values())
 
     def set_preset_mode(self, preset_mode: str) -> None:
         """Set new preset mode."""
