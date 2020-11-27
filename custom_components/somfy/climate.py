@@ -1,28 +1,29 @@
 """Support for Somfy Covers."""
 
+import logging
 from typing import List, Optional
 from homeassistant.components.climate.const import (
     CURRENT_HVAC_HEAT,
     CURRENT_HVAC_IDLE,
-    HVAC_MODE_AUTO,
     HVAC_MODE_COOL,
     HVAC_MODE_HEAT,
-    HVAC_MODE_HEAT_COOL,
     PRESET_AWAY,
-    PRESET_COMFORT,
     PRESET_HOME,
     PRESET_SLEEP,
     SUPPORT_PRESET_MODE,
     SUPPORT_TARGET_TEMPERATURE,
 )
+from homeassistant.helpers import temperature
 from pymfy.api.devices.thermostat import DurationType, Thermostat, HvacState, TargetMode
 from pymfy.api.devices.category import Category
 
 from homeassistant.components.climate import ClimateEntity
-from homeassistant.const import TEMP_CELSIUS
+from homeassistant.const import ATTR_TEMPERATURE, TEMP_CELSIUS
 
 from . import SomfyEntity
 from .const import API, COORDINATOR, DOMAIN
+
+_LOGGER = logging.getLogger(__name__)
 
 SUPPORTED_CATEGORIES = {Category.HVAC.value}
 
@@ -30,6 +31,7 @@ PRESETS_MAPPING = {
     TargetMode.AT_HOME: PRESET_HOME,
     TargetMode.AWAY: PRESET_AWAY,
     TargetMode.SLEEP: PRESET_SLEEP,
+    TargetMode.MANUEL: "manual",
 }
 REVERSE_PRESET_MAPPING = {v: k for k, v in PRESETS_MAPPING.items()}
 
@@ -85,14 +87,14 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
         return self.climate.get_ambient_temperature()
 
     @property
-    def current_humidity(self):
-        """Return the current humidity."""
-        return self.climate.get_humidity()
-
-    @property
     def target_temperature(self):
         """Return the temperature we try to reach."""
         return self.climate.get_target_temperature()
+
+    @property
+    def current_humidity(self):
+        """Return the current humidity."""
+        return self.climate.get_humidity()
 
     @property
     def hvac_mode(self) -> str:
@@ -141,8 +143,18 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
         if self.preset_mode == preset_mode:
             return
 
+        if preset_mode == PRESET_HOME:
+            temperature = self.climate.get_at_home_temperature()
+        elif preset_mode == PRESET_AWAY:
+            temperature = self.climate.get_away_temperature()
+        elif preset_mode == PRESET_SLEEP:
+            temperature = self.climate.get_night_temperature()
+        else:
+            _LOGGER.error("Preset mode not supported: %s", preset_mode)
+            return
+
         self.climate.set_target(
             REVERSE_PRESET_MAPPING[preset_mode],
-            self.target_temperature,
+            temperature,
             DurationType.FURTHER_NOTICE,
         )
