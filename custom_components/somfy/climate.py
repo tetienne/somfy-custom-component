@@ -91,6 +91,18 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
         """Return the temperature we try to reach."""
         return self.climate.get_target_temperature()
 
+    def set_temperature(self, **kwargs) -> None:
+        """Set new target temperature."""
+        temperature = kwargs.get(ATTR_TEMPERATURE)
+        if temperature is None:
+            return
+
+        self.climate.set_target(
+            TargetMode.MANUEL,
+            temperature,
+            DurationType.FURTHER_NOTICE,
+        )
+
     @property
     def current_humidity(self):
         """Return the current humidity."""
