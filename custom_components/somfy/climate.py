@@ -114,7 +114,7 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
     @property
     def hvac_modes(self) -> List[str]:
         """Return the list of available hvac operation modes."""
-        return [HVAC_MODE_HEAT, HVAC_MODE_COOL]
+        return []
 
     @property
     def hvac_action(self) -> str:
