@@ -1,14 +1,19 @@
 """Support for Somfy Covers."""
 
-from typing import List
+from typing import List, Optional
 from homeassistant.components.climate.const import (
     HVAC_MODE_AUTO,
     HVAC_MODE_COOL,
     HVAC_MODE_HEAT,
     HVAC_MODE_HEAT_COOL,
+    PRESET_AWAY,
+    PRESET_COMFORT,
+    PRESET_HOME,
+    PRESET_SLEEP,
+    SUPPORT_PRESET_MODE,
     SUPPORT_TARGET_TEMPERATURE,
 )
-from pymfy.api.devices.thermostat import Thermostat, HvacState
+from pymfy.api.devices.thermostat import DurationType, Thermostat, HvacState, TargetMode
 from pymfy.api.devices.category import Category
 
 from homeassistant.components.climate import ClimateEntity
@@ -18,6 +23,15 @@ from . import SomfyEntity
 from .const import API, COORDINATOR, DOMAIN
 
 SUPPORTED_CATEGORIES = {Category.HVAC.value}
+
+PRESETS_MAPPING = {
+    TargetMode.AT_HOME: PRESET_HOME,
+    TargetMode.AWAY: PRESET_AWAY,
+    TargetMode.SLEEP: PRESET_SLEEP,
+}
+REVERSE_PRESET_MAPPING = {v: k for k, v in PRESETS_MAPPING.items()}
+
+HVAC_MODES_MAPPING = {HvacState.COOL: HVAC_MODE_COOL, HvacState.HEAT: HVAC_MODE_HEAT}
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
@@ -55,7 +69,7 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
     @property
     def supported_features(self) -> int:
         """Return the list of supported features."""
-        supported_features = SUPPORT_TARGET_TEMPERATURE
+        supported_features = SUPPORT_TARGET_TEMPERATURE | SUPPORT_PRESET_MODE
         return supported_features
 
     @property
@@ -82,11 +96,31 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
     def hvac_mode(self) -> str:
         """Return hvac operation ie. heat, cool mode."""
         mode = self.climate.get_hvac_state()
-        return {HvacState.COOL: HVAC_MODE_COOL, HvacState.HEAT: HVAC_MODE_HEAT}.get(
-            mode
-        )
+        return HVAC_MODES_MAPPING.get(mode)
 
     @property
     def hvac_modes(self) -> List[str]:
         """Return the list of available hvac operation modes."""
         return [HVAC_MODE_AUTO, HVAC_MODE_HEAT, HVAC_MODE_COOL]
+
+    @property
+    def preset_mode(self) -> Optional[str]:
+        """Return the current preset mode."""
+        mode = self.climate.get_target_mode()
+        return PRESETS_MAPPING.get(mode)
+
+    @property
+    def preset_modes(self) -> Optional[List[str]]:
+        """Return a list of available preset modes."""
+        return list(PRESETS_MAPPING.keys())
+
+    def set_preset_mode(self, preset_mode: str) -> None:
+        """Set new preset mode."""
+        if self.preset_mode == preset_mode:
+            return
+
+        self.climate.set_target(
+            REVERSE_PRESET_MAPPING[preset_mode],
+            self.target_temperature,
+            DurationType.FURTHER_NOTICE,
+        )
