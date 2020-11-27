@@ -62,7 +62,6 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
     def __init__(self, coordinator, device_id, api):
         """Initialize the Somfy device."""
         super().__init__(coordinator, device_id, api)
-        self.categories = set(self.device.categories)
         self.climate = None
         self._create_device()
 
