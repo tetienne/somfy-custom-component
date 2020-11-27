@@ -98,9 +98,7 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
             return
 
         self.climate.set_target(
-            TargetMode.MANUEL,
-            temperature,
-            DurationType.FURTHER_NOTICE,
+            TargetMode.MANUEL, temperature, DurationType.FURTHER_NOTICE, -1
         )
 
     @property
