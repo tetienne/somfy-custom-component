@@ -98,7 +98,7 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
             return
 
         self.climate.set_target(
-            TargetMode.MANUEL, temperature, DurationType.FURTHER_NOTICE, -1
+            TargetMode.MANUEL, temperature, DurationType.NEXT_MODE, -1
         )
 
     @property
@@ -166,5 +166,5 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
         self.climate.set_target(
             REVERSE_PRESET_MAPPING[preset_mode],
             temperature,
-            DurationType.FURTHER_NOTICE,
+            DurationType.NEXT_MODE,
         )
