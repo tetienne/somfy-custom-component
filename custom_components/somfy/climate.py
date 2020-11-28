@@ -9,6 +9,7 @@ from homeassistant.components.climate.const import (
     HVAC_MODE_HEAT,
     PRESET_AWAY,
     PRESET_HOME,
+    PRESET_NONE,
     PRESET_SLEEP,
     SUPPORT_PRESET_MODE,
     SUPPORT_TARGET_TEMPERATURE,
@@ -31,7 +32,7 @@ PRESETS_MAPPING = {
     TargetMode.AT_HOME: PRESET_HOME,
     TargetMode.AWAY: PRESET_AWAY,
     TargetMode.SLEEP: PRESET_SLEEP,
-    TargetMode.MANUEL: "manual",
+    TargetMode.MANUEL: PRESET_NONE,
 }
 REVERSE_PRESET_MAPPING = {v: k for k, v in PRESETS_MAPPING.items()}
 
@@ -158,6 +159,8 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
             temperature = self.climate.get_away_temperature()
         elif preset_mode == PRESET_SLEEP:
             temperature = self.climate.get_night_temperature()
+        elif preset_mode == PRESET_NONE:
+            temperature = self.target_temperature
         else:
             _LOGGER.error("Preset mode not supported: %s", preset_mode)
             return
