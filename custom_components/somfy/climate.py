@@ -5,6 +5,7 @@ from typing import List, Optional
 from homeassistant.components.climate.const import (
     CURRENT_HVAC_HEAT,
     CURRENT_HVAC_IDLE,
+    HVAC_MODE_AUTO,
     HVAC_MODE_COOL,
     HVAC_MODE_HEAT,
     PRESET_AWAY,
@@ -15,7 +16,13 @@ from homeassistant.components.climate.const import (
     SUPPORT_TARGET_TEMPERATURE,
 )
 from homeassistant.helpers import temperature
-from pymfy.api.devices.thermostat import DurationType, Thermostat, HvacState, TargetMode
+from pymfy.api.devices.thermostat import (
+    DurationType,
+    RegulationState,
+    Thermostat,
+    HvacState,
+    TargetMode,
+)
 from pymfy.api.devices.category import Category
 
 from homeassistant.components.climate import ClimateEntity
@@ -109,13 +116,30 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
     @property
     def hvac_mode(self) -> str:
         """Return hvac operation ie. heat, cool mode."""
-        mode = self.climate.get_hvac_state()
-        return HVAC_MODES_MAPPING.get(mode)
+        if self.climate.get_regulation_state() == RegulationState.TIMETABLE:
+            return HVAC_MODE_AUTO
+        else:
+            return HVAC_MODES_MAPPING.get(self.climate.get_hvac_state())
 
     @property
     def hvac_modes(self) -> List[str]:
         """Return the list of available hvac operation modes."""
-        return []
+        hvac_state = HVAC_MODES_MAPPING.get(self.climate.get_hvac_state())
+        return [HVAC_MODE_AUTO, hvac_state]
+
+    def set_hvac_mode(self, hvac_mode: str) -> None:
+        """Set new target hvac mode."""
+        if hvac_mode == self.hvac_mode:
+            return
+        if hvac_mode == HVAC_MODE_AUTO:
+            self.climate.cancel_target()
+        else:
+            self.climate.set_target(
+                TargetMode.MANUEL,
+                self.target_temperature,
+                DurationType.FURTHER_NOTICE,
+                -1,
+            )
 
     @property
     def hvac_action(self) -> str:
