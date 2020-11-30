@@ -39,7 +39,7 @@ PRESETS_MAPPING = {
     TargetMode.AT_HOME: PRESET_HOME,
     TargetMode.AWAY: PRESET_AWAY,
     TargetMode.SLEEP: PRESET_SLEEP,
-    TargetMode.MANUEL: PRESET_NONE,
+    TargetMode.MANUAL: PRESET_NONE,
 }
 REVERSE_PRESET_MAPPING = {v: k for k, v in PRESETS_MAPPING.items()}
 
@@ -104,7 +104,7 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
         if temperature is None:
             return
 
-        self.climate.set_target(TargetMode.MANUEL, temperature, DurationType.NEXT_MODE)
+        self.climate.set_target(TargetMode.MANUAL, temperature, DurationType.NEXT_MODE)
 
     @property
     def current_humidity(self):
@@ -133,7 +133,7 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
             self.climate.cancel_target()
         else:
             self.climate.set_target(
-                TargetMode.MANUEL, self.target_temperature, DurationType.FURTHER_NOTICE
+                TargetMode.MANUAL, self.target_temperature, DurationType.FURTHER_NOTICE
             )
 
     @property
