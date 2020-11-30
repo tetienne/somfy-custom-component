@@ -195,7 +195,7 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
             temperature = self.climate.get_away_temperature()
         elif preset_mode == PRESET_SLEEP:
             temperature = self.climate.get_night_temperature()
-        elif preset_mode == PRESET_NONE:
+        elif preset_mode == PRESET_NONE or preset_mode == PRESET_ACTIVITY:
             temperature = self.target_temperature
         else:
             _LOGGER.error("Preset mode not supported: %s", preset_mode)
