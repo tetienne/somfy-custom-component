@@ -8,6 +8,7 @@ from homeassistant.components.climate.const import (
     HVAC_MODE_AUTO,
     HVAC_MODE_COOL,
     HVAC_MODE_HEAT,
+    PRESET_ACTIVITY,
     PRESET_AWAY,
     PRESET_HOME,
     PRESET_NONE,
@@ -40,6 +41,7 @@ PRESETS_MAPPING = {
     TargetMode.AWAY: PRESET_AWAY,
     TargetMode.SLEEP: PRESET_SLEEP,
     TargetMode.MANUAL: PRESET_NONE,
+    TargetMode.GEOFENCING: PRESET_ACTIVITY,
 }
 REVERSE_PRESET_MAPPING = {v: k for k, v in PRESETS_MAPPING.items()}
 
