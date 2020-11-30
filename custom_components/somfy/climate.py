@@ -1,7 +1,7 @@
 """Support for Somfy Covers."""
 
 import logging
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 from homeassistant.components.climate.const import (
     CURRENT_HVAC_HEAT,
     CURRENT_HVAC_IDLE,
@@ -27,7 +27,7 @@ from pymfy.api.devices.thermostat import (
 from pymfy.api.devices.category import Category
 
 from homeassistant.components.climate import ClimateEntity
-from homeassistant.const import ATTR_TEMPERATURE, TEMP_CELSIUS
+from homeassistant.const import ATTR_BATTERY_LEVEL, ATTR_TEMPERATURE, TEMP_CELSIUS
 
 from . import SomfyEntity
 from .const import API, COORDINATOR, DOMAIN
@@ -86,6 +86,11 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
         """Return the list of supported features."""
         supported_features = SUPPORT_TARGET_TEMPERATURE | SUPPORT_PRESET_MODE
         return supported_features
+
+    @property
+    def device_state_attributes(self) -> Dict[str, Any]:
+        """Return the state attributes of the device."""
+        return {ATTR_BATTERY_LEVEL: self.climate.get_battery()}
 
     @property
     def temperature_unit(self):
