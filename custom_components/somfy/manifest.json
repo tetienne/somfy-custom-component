@@ -10,6 +10,6 @@
     "@tetienne"
   ],
   "requirements": [
-    "pymfy==0.9.2"
+    "pymfy==0.9.3"
   ]
 }
