@@ -36,12 +36,15 @@ _LOGGER = logging.getLogger(__name__)
 
 SUPPORTED_CATEGORIES = {Category.HVAC.value}
 
+PRESET_FROST_GUARD = "Frost Guard"
+
 PRESETS_MAPPING = {
     TargetMode.AT_HOME: PRESET_HOME,
     TargetMode.AWAY: PRESET_AWAY,
     TargetMode.SLEEP: PRESET_SLEEP,
     TargetMode.MANUAL: PRESET_NONE,
     TargetMode.GEOFENCING: PRESET_ACTIVITY,
+    TargetMode.FROST_PROTECTION: "PRESET_FROST_GUARD",
 }
 REVERSE_PRESET_MAPPING = {v: k for k, v in PRESETS_MAPPING.items()}
 
@@ -195,6 +198,8 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
             temperature = self.climate.get_away_temperature()
         elif preset_mode == PRESET_SLEEP:
             temperature = self.climate.get_night_temperature()
+        elif preset_mode == PRESET_FROST_GUARD:
+            temperature = self.climate.get_frost_protection_temperature()
         elif preset_mode == PRESET_NONE or preset_mode == PRESET_ACTIVITY:
             temperature = self.target_temperature
         else:
