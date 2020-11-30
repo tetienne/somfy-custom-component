@@ -104,9 +104,7 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
         if temperature is None:
             return
 
-        self.climate.set_target(
-            TargetMode.MANUEL, temperature, DurationType.NEXT_MODE, -1
-        )
+        self.climate.set_target(TargetMode.MANUEL, temperature, DurationType.NEXT_MODE)
 
     @property
     def current_humidity(self):
@@ -135,10 +133,7 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
             self.climate.cancel_target()
         else:
             self.climate.set_target(
-                TargetMode.MANUEL,
-                self.target_temperature,
-                DurationType.FURTHER_NOTICE,
-                -1,
+                TargetMode.MANUEL, self.target_temperature, DurationType.FURTHER_NOTICE
             )
 
     @property
@@ -190,5 +185,5 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
             return
 
         self.climate.set_target(
-            REVERSE_PRESET_MAPPING[preset_mode], temperature, DurationType.NEXT_MODE, -1
+            REVERSE_PRESET_MAPPING[preset_mode], temperature, DurationType.NEXT_MODE
         )
