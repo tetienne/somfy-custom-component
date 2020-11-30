@@ -47,6 +47,8 @@ REVERSE_PRESET_MAPPING = {v: k for k, v in PRESETS_MAPPING.items()}
 
 HVAC_MODES_MAPPING = {HvacState.COOL: HVAC_MODE_COOL, HvacState.HEAT: HVAC_MODE_HEAT}
 
+MAX_TEMP = 26.0
+
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up the Somfy cover platform."""
@@ -107,6 +109,10 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
             return
 
         self.climate.set_target(TargetMode.MANUAL, temperature, DurationType.NEXT_MODE)
+
+    def max_temp(self) -> float:
+        """Return the maximum temperature."""
+        return MAX_TEMP
 
     @property
     def current_humidity(self):
