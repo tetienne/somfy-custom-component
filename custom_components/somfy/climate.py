@@ -37,12 +37,13 @@ SUPPORTED_CATEGORIES = {Category.HVAC.value}
 
 PRESET_FROST_GUARD = "Frost Guard"
 PRESET_GEOFENCING = "Geofencing"
+PRESET_MANUAL = "Manual"
 
 PRESETS_MAPPING = {
     TargetMode.AT_HOME: PRESET_HOME,
     TargetMode.AWAY: PRESET_AWAY,
     TargetMode.SLEEP: PRESET_SLEEP,
-    TargetMode.MANUAL: PRESET_NONE,
+    TargetMode.MANUAL: PRESET_MANUAL,
     TargetMode.GEOFENCING: PRESET_GEOFENCING,
     TargetMode.FROST_PROTECTION: PRESET_FROST_GUARD,
 }
@@ -200,7 +201,7 @@ class SomfyClimate(SomfyEntity, ClimateEntity):
             temperature = self.climate.get_night_temperature()
         elif preset_mode == PRESET_FROST_GUARD:
             temperature = self.climate.get_frost_protection_temperature()
-        elif preset_mode == PRESET_NONE or preset_mode == PRESET_GEOFENCING:
+        elif preset_mode == PRESET_MANUAL or preset_mode == PRESET_GEOFENCING:
             temperature = self.target_temperature
         else:
             _LOGGER.error("Preset mode not supported: %s", preset_mode)
