@@ -10,6 +10,6 @@
     "@tetienne"
   ],
   "requirements": [
-    "pymfy==0.9.3"
+    "git+https://github.com/tetienne/somfy-open-api.git@enhancement/backoff#pymfy==0.9.5-beta"
   ]
 }
