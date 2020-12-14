@@ -2,10 +2,9 @@
 from asyncio import run_coroutine_threadsafe
 from typing import Dict, Union
 
-from pymfy.api import somfy_api
-
 from homeassistant import config_entries, core
 from homeassistant.helpers import config_entry_oauth2_flow
+from pymfy.api import somfy_api
 
 
 class ConfigEntrySomfyApi(somfy_api.SomfyApi):

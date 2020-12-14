@@ -1,8 +1,7 @@
 """Support for Somfy Camera Shutter."""
+from homeassistant.components.switch import SwitchEntity
 from pymfy.api.devices.camera_protect import CameraProtect
 from pymfy.api.devices.category import Category
-
-from homeassistant.components.switch import SwitchEntity
 
 from . import SomfyEntity
 from .const import API, COORDINATOR, DOMAIN

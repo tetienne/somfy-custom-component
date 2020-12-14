@@ -4,9 +4,6 @@ import asyncio
 from datetime import timedelta
 import logging
 
-from pymfy.api.devices.category import Category
-import voluptuous as vol
-
 from homeassistant.components.somfy import config_flow
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_CLIENT_ID, CONF_CLIENT_SECRET
@@ -22,6 +19,8 @@ from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
     DataUpdateCoordinator,
 )
+from pymfy.api.devices.category import Category
+import voluptuous as vol
 
 from . import api
 from .const import API, CONF_OPTIMISTIC, COORDINATOR, DOMAIN
