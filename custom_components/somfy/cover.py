@@ -1,8 +1,5 @@
 """Support for Somfy Covers."""
 
-from pymfy.api.devices.blind import Blind
-from pymfy.api.devices.category import Category
-
 from homeassistant.components.cover import (
     ATTR_POSITION,
     ATTR_TILT_POSITION,
@@ -11,10 +8,23 @@ from homeassistant.components.cover import (
     CoverEntity,
 )
 from homeassistant.const import STATE_CLOSED, STATE_OPEN
+from homeassistant.helpers import config_validation as cv, entity_platform, service
 from homeassistant.helpers.restore_state import RestoreEntity
+from pymfy.api.devices.blind import Blind
+from pymfy.api.devices.category import Category
+import voluptuous as vol
+from voluptuous.validators import All, Range
 
 from . import SomfyEntity
-from .const import API, CONF_OPTIMISTIC, COORDINATOR, DOMAIN
+from .const import (
+    API,
+    CONF_OPTIMISTIC,
+    COORDINATOR,
+    DOMAIN,
+    SERVICE_CLOSE_COVER_SLOWLY,
+    SERVICE_OPEN_COVER_SLOWLY,
+    SERVICE_SET_COVER_POSITION_SLOWLY,
+)
 
 BLIND_DEVICE_CATEGORIES = {Category.INTERIOR_BLIND.value, Category.EXTERIOR_BLIND.value}
 SHUTTER_DEVICE_CATEGORIES = {Category.EXTERIOR_BLIND.value}
@@ -28,19 +38,41 @@ SUPPORTED_CATEGORIES = {
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up the Somfy cover platform."""
 
-    def get_covers():
-        """Retrieve covers."""
-        domain_data = hass.data[DOMAIN]
-        coordinator = domain_data[COORDINATOR]
-        api = domain_data[API]
+    domain_data = hass.data[DOMAIN]
+    coordinator = domain_data[COORDINATOR]
+    api = domain_data[API]
 
-        return [
-            SomfyCover(coordinator, device_id, api, domain_data[CONF_OPTIMISTIC])
-            for device_id, device in coordinator.data.items()
-            if SUPPORTED_CATEGORIES & set(device.categories)
-        ]
+    somfy_covers = [
+        SomfyCover(coordinator, device_id, api, domain_data[CONF_OPTIMISTIC])
+        for device_id, device in coordinator.data.items()
+        if SUPPORTED_CATEGORIES & set(device.categories)
+    ]
 
-    async_add_entities(await hass.async_add_executor_job(get_covers))
+    async_add_entities(somfy_covers)
+
+    if any(
+        somfy_cover.has_capability("position_low_speed") for somfy_cover in somfy_covers
+    ):
+
+        platform = entity_platform.current_platform.get()
+
+        platform.async_register_entity_service(
+            SERVICE_CLOSE_COVER_SLOWLY,
+            None,
+            "close_cover_slowly",
+        )
+
+        platform.async_register_entity_service(
+            SERVICE_OPEN_COVER_SLOWLY,
+            None,
+            "open_cover_slowly",
+        )
+
+        platform.async_register_entity_service(
+            SERVICE_SET_COVER_POSITION_SLOWLY,
+            {vol.Required("position"): All(int, Range(min=1, max=100))},
+            "set_cover_position_slowly",
+        )
 
 
 class SomfyCover(SomfyEntity, RestoreEntity, CoverEntity):
@@ -85,6 +117,14 @@ class SomfyCover(SomfyEntity, RestoreEntity, CoverEntity):
             self._is_opening = None
             self.async_write_ha_state()
 
+    def open_cover_slowly(self):
+        """Open slowly the cover."""
+        self.cover.set_position(0, low_speed=True)
+
+    def close_cover_slowly(self):
+        """Close slowy the cover."""
+        self.cover.set_position(100, low_speed=True)
+
     def stop_cover(self, **kwargs):
         """Stop the cover."""
         self.cover.stop()
@@ -92,6 +132,10 @@ class SomfyCover(SomfyEntity, RestoreEntity, CoverEntity):
     def set_cover_position(self, **kwargs):
         """Move the cover shutter to a specific position."""
         self.cover.set_position(100 - kwargs[ATTR_POSITION])
+
+    def set_cover_position_slowly(self, position: int):
+        """Move the cover shutter to a specific position slowly."""
+        self.cover.set_position(100 - position, low_speed=True)
 
     @property
     def device_class(self):

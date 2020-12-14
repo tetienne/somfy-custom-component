@@ -1,0 +1,24 @@
+open_cover_slowly:
+  description: Open a cover slowly
+  fields:
+    entity_id:
+      description: Name of the entity to open
+      example: "cover.living_room"
+
+close_cover_slowly:
+  description: Close a cover slowly
+  fields:
+    entity_id:
+      description: Name of the entity to close
+      example: "cover.living_room"
+
+
+set_cover_position_slowly:
+  description: Set the position of a cover slowly
+  fields:
+    entity_id:
+      description: Name of the entity to move
+      example: "cover.living_room"
+    position:
+      description: Expected position
+      example: 50
