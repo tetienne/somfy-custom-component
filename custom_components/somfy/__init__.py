@@ -18,6 +18,7 @@ from homeassistant.helpers.typing import HomeAssistantType
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
     DataUpdateCoordinator,
+    UpdateFailed,
 )
 from pymfy.api.devices.category import Category
 import voluptuous as vol
@@ -91,6 +92,8 @@ async def async_setup_entry(hass: HomeAssistantType, entry: ConfigEntry):
     async def _update_all_devices():
         """Update all the devices."""
         devices = await hass.async_add_executor_job(data[API].get_devices)
+        if not devices:
+            raise UpdateFailed("No devices returned.")
         return {dev.id: dev for dev in devices}
 
     coordinator = DataUpdateCoordinator(
